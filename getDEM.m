@@ -1,0 +1,30 @@
+%功能：对由等高线取得的数据进行插值
+%输入：文件的格式（x,y,z)
+%输出：各个网格点的高程
+%作者：QingLing.Zhu email:qlzhu1991@gmail.com
+%时间：2014-3-18
+
+function [DEM_X,DEM_Y,DEM_Z]=getDEM(file)
+%% 从等高线数据中，得到dem数据
+%输入文件含有离散点的x,y,z轴坐标
+A=load(file);
+x=A(:,1);y=A(:,2);z=A(:,3);
+xmin=min(x);xmax=max(x);
+ymin=min(y);ymax=max(y);
+%因为取点的时候，y轴取的值和我们的视角不一样，所以在这里要转换一下！！
+y=ones(size(y,1),1)*ymax-y;
+%Xn和Yn表示将x轴分割成Xn份，将y轴分割成Yn份
+Xn=62;Yn=92;
+deltaX=(xmax-xmin)/(Xn-1);
+deltaY=(ymax-ymin)/(Yn-1);
+fprintf('x轴最小值为：%d,最大值为:%d,deltax值为：%d\n',xmin,xmax,deltaX);
+fprintf('y轴最小值为：%d,最大值为:%d,deltay值为：%d\n',ymin,ymax,deltaY);
+pause(0.1);
+[X,Y,Z]=griddata(x,y,z,linspace(xmin,xmax,Xn)',linspace(ymin,ymax,Yn),'v4');%插值
+%将Z轴都加10，保证从0开始
+for i=1:Yn
+    for j=1:Xn
+        Z(i,j)=Z(i,j)+8;
+    end
+end
+DEM_X=X(1,:);DEM_Y=Y(:,1);DEM_Z=Z;
